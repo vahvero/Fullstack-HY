@@ -1,0 +1,30 @@
+kayttaja->selain:
+note left of selain
+kayttaja kirjottaa osoiteriville
+fullstack-exampleapp.herokuapp.com/notes
+end note
+selain->palvelin: GET fullstack-exampleapp.herokuapp.com/notes
+note left of palvelin
+  Muodostetaan HTML
+end note
+palvelin->selain: status 304, sivun HTML-koodi
+
+note right of selain
+HTML renderöinti aloitetaan. HTML sisältää kutsun CSSlle ja JSlle.
+end note
+
+selain->palvelin: GET fullstack-exampleapp.herokuapp.com/main.js
+selain->palvelin: GET fullstack-exampleapp.herokuapp.com/main.css
+
+note right of palvelin
+    Palautetaan koodit.
+end note
+
+palvelin->selain: status 304, main.js koodi
+palvelin->selain: status 304, main.css koodi
+
+selain->palvelin: main.js kutsuu GET fullstack-exampleapp.herokuapp.com/data.json
+
+palvelin->selain: status 304, data.json objekti.
+
+selain->kayttaja:  Selain näyttää lopullisen sivun

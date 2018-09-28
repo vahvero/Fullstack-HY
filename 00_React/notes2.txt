@@ -1,0 +1,28 @@
+kayttaja->selain:
+note left of selain
+Kayttaja initoi talleta painalluksella POST kutsun
+end note
+selain->palvelin: POST fullstack-exampleapp.herokuapp.com/new_note
+note left of palvelin
+   Lisätään POST-requestin sisältämä note kantaan 
+end note
+palvelin->selain: status 302
+
+note right of selain
+Selain päivittää tiedot. Esim. "Creation successful" varoituksella.
+end note
+
+note right of palvelin
+    Palautetaan data.
+end note
+
+selain->palvelin: main.js kutsuu GET fullstack-exampleapp.herokuapp.com/data.json
+
+palvelin->selain: status 304.
+
+note left of selain 
+Selain päivittää javascriptillä uutta tietoa HTMLään 
+eikä koko HTML tarvitse ladata uudestaan sivun päivittämisellä.
+end note
+
+selain->kayttaja:  Aktiivinen renderöinti
