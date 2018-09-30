@@ -3,9 +3,13 @@ const express = require('express');
 
 const app = express();
 
+const bodyparser = require('body-parser');
+
+app.use(bodyparser.json());
+
 const port = 3001;
 
-let notes = [
+let persons = [
     {
         name: "Arto Hellas",
         number: "040-123456",
@@ -33,11 +37,11 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(notes)
+    res.json(persons)
 })
 
 app.get('/info', (req, res) => {
-    const len = notes.length;
+    const len = persons.length;
     const time = new Date();
     res.send(
         `<p>Puhelin luettelossa on ${len} numeroa.</p>
@@ -47,7 +51,7 @@ app.get('/info', (req, res) => {
 
 app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
-    const note = notes.find((elem) => {
+    const note = persons.find((elem) => {
         return elem.id === id
     });
 
@@ -61,7 +65,7 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
-    const ind = notes.findIndex(
+    const ind = persons.findIndex(
         (elem) => {
             return elem.id === id;
         }
@@ -71,18 +75,18 @@ app.delete('/api/persons/:id', (req, res) => {
         res.status(404).json({});
     }
     else {
-        notes.splice(ind, 1);
-        // console.log(notes);
+        persons.splice(ind, 1);
+        // console.log(persons);
         res.status(302).json({});
     }
 
-    // console.log(notes)
+    // console.log(persons)
 
 
 })
 
 app.post('/api/persons', (req, res) => {
-    console.log(req);
+    // console.log(req);
 
     if(req.body === undefined) {
         return res.status(418).json({error: 'no content'});
@@ -94,7 +98,7 @@ app.post('/api/persons', (req, res) => {
         const person = {
                 name: payload.name,
                 number: payload.number,
-                id: Math.floor(Math.random()) * 1000000
+                id: Math.floor(Math.random() * 1000000)
         }
         persons.push(person);
         return res.status(200).json({});
