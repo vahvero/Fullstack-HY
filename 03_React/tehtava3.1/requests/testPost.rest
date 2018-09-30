@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/persons
+Content-Type: application/xml
+
+<request>
+    <name>Nalle Brummer</name>
+    <number>My ebinest of numbers</number>
+</request>

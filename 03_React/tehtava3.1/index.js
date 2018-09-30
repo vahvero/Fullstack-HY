@@ -66,17 +66,44 @@ app.delete('/api/persons/:id', (req, res) => {
             return elem.id === id;
         }
     )
-    if(!ind) {
-        res.status(404);
+    console.log(ind);
+    if(ind <= -1) {
+        res.status(404).json({});
     }
     else {
         notes.splice(ind, 1);
-        res.status(302);
+        // console.log(notes);
+        res.status(302).json({});
     }
 
-    
+    // console.log(notes)
 
 
+})
+
+app.post('/api/persons', (req, res) => {
+    console.log(req);
+
+    if(req.body === undefined) {
+        return res.status(418).json({error: 'no content'});
+    }
+
+    const payload = req.body;
+    console.log(payload);
+    try {
+        const person = {
+                name: payload.name,
+                number: payload.number,
+                id: Math.floor(Math.random()) * 1000000
+        }
+        persons.push(person);
+        return res.status(200).json({});
+
+    }
+    catch(e) {
+        console.log(e);
+        return res.status(400).json({error: e});
+    }
 })
 
 const PORT = 3001;
