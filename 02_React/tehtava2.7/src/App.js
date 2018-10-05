@@ -6,8 +6,6 @@ import {Number} from './Number';
 import {InputElement} from './InputElement'
 import {Notification} from './Notification';
 
-const FETCHURL = "http://localhost:3001";
-
 class App extends React.Component {
   constructor(props) {
     super(props)

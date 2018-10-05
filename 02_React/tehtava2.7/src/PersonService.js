@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 
-const FETCHURL = "http://localhost:3001";
+const FETCHURL = "http://localhost:3001/api";
 
 const getAll = () => {
 

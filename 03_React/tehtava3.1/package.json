@@ -11,7 +11,13 @@
   "author": "Teemu Teekkari",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.3"
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "m": "^1.5.1",
+    "morgan": "^1.9.1",
+    "np": "^3.0.4",
+    "run": "^1.4.0",
+    "watch": "^1.0.2"
   },
   "devDependencies": {
     "nodemon": "^1.18.4"

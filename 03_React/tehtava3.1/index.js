@@ -7,6 +7,30 @@ const bodyparser = require('body-parser');
 
 app.use(bodyparser.json());
 
+const morgan = require('morgan');
+
+const cors = require('cors');
+
+app.use(cors());
+
+app.use(morgan(
+
+    (tokens, req, res) => {
+        // console.log(req.body, res);
+        return [
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            JSON.stringify(req.body),
+            JSON.stringify(res.body),
+            tokens.res(req, res, 'content-length'), '-',
+            tokens['response-time'](req, res), 'ms',
+            
+        ].join(' ')
+    }
+
+));
+
 const port = 3001;
 
 let persons = [
@@ -94,6 +118,19 @@ app.post('/api/persons', (req, res) => {
 
     const payload = req.body;
     console.log(payload);
+
+    console.log(persons.find((elem => {
+        return elem.name === payload.name
+    })) || !isNaN(payload.number));
+
+    if(persons.find((elem => {
+        return elem.name === payload.name
+    })) || payload.number === ""
+    ){
+        return res.status(418).json(
+            {error: 'Name must be unique and number non empty'}     
+        );
+    }
     try {
         const person = {
                 name: payload.name,
@@ -112,7 +149,8 @@ app.post('/api/persons', (req, res) => {
 
 const PORT = 3001;
 
+const PORT = process.env.PORT || PORT
 app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-})
+  console.log(`Server running on port ${PORT}`)
+});
 
