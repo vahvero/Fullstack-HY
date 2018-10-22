@@ -1,4 +1,6 @@
 
+const {Person}  = require('./db');
+
 const express = require('express');
 
 const app = express();
@@ -16,7 +18,6 @@ app.use(express.static('build'));
 app.use(cors());
 
 app.use(morgan(
-
     (tokens, req, res) => {
         // console.log(req.body, res);
         return [
@@ -33,75 +34,99 @@ app.use(morgan(
 
 ));
 
-let persons = [
-    {
-        name: "Arto Hellas",
-        number: "040-123456",
-        id: 1
-    },
-    {
-        name: "Martti Tienari",
-        number: "040-123456",
-        id: 2
-    },
-    {
-        name: "Arto Järvinen",
-        number: "040-123456",
-        id: 3
-    },
-    {
-        name: "Lea Kutvonen",
-        number: "040-123456",
-        id: 4
-    }
-]
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+        Person
+        .find({})
+        .then(
+            
+            response => {
+                console.log(response);
+                res.json(response)
+            }
+            //     console.log(response);
+            //     response.forEach(
+            //         person => {
+            //             console.log(person);
+            //             return person;
+            //         }
+            //     )
+            // }
+        )
+        // .then(
+        //     response => {
+        //         console.log("Perkele: " + response);
+        //         if (!response){
+        //             console.log('VITTU')
+        //             res.json({})
+        //         }
+        //         else{
+        //             res.json(response);
+        //         }
+        //     }
+        // )
+        .catch(err => {
+            console.log(err);
+            res.status(400).json({})
+        })
+
 })
 
 app.get('/info', (req, res) => {
-    const len = persons.length;
-    const time = new Date();
-    res.send(
-        `<p>Puhelin luettelossa on ${len} numeroa.</p>
-        <p>${time}</p>`
-    )
+    Person
+        .find({})
+        .then(
+            response => {
+                const len = response.length;
+                const time = new Date();
+                res.send(
+                    `<p>Puhelin luettelossa on ${len} numeroa.</p>
+                    <p>${time}</p>`
+                )
+            }
+        );
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const note = persons.find((elem) => {
-        return elem.id === id
-    });
-
-    if(!note){
-        res.status(404).json(note);
+    console.log(req.params);
+    const id = req.params.id;
+    Person.find(
+        {_id: id}
+    )
+    .then(
+        (person) => {
+        if(!person){
+            res.status(404).json(person);
+        }
+        else {
+            res.json(person);
+        }
     }
-    else {
-        res.json(note);
-    }
+    );
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const ind = persons.findIndex(
-        (elem) => {
-            return elem.id === id;
+
+    console.log(req.params);
+    const id = req.params.id;
+
+    Person.findOneAndDelete(
+        {_id: id}
+    ).then(
+        resp => {
+            console.log("RESP " + resp)
+            if(!resp){
+                res.status(404).json({});
+            }
+            else{
+                res.status(302).json({});
+            }
         }
     )
-    console.log(ind);
-    if(ind <= -1) {
-        res.status(404).json({});
-    }
-    else {
-        persons.splice(ind, 1);
-        // console.log(persons);
-        res.status(302).json({});
-    }
-
-    // console.log(persons)
-
+    .catch(err => {
+        console.log(err);
+        res.status(400).json({})
+    });
 
 })
 
@@ -115,32 +140,49 @@ app.post('/api/persons', (req, res) => {
     const payload = req.body;
     console.log(payload);
 
-    console.log(persons.find((elem => {
-        return elem.name === payload.name
-    })) || !isNaN(payload.number));
-
-    if(persons.find((elem => {
-        return elem.name === payload.name
-    })) || payload.number === ""
-    ){
-        return res.status(418).json(
-            {error: 'Name must be unique and number non empty'}     
-        );
-    }
-    try {
-        const person = {
-                name: payload.name,
-                number: payload.number,
-                id: Math.floor(Math.random() * 1000000)
+    Person.find(
+        {name: payload.name}
+    )
+    .then(
+        response => {
+            console.log(response);
         }
-        persons.push(person);
-        return res.status(200).json(person);
+    );
 
-    }
-    catch(e) {
-        console.log(e);
-        return res.status(400).json({error: e});
-    }
+    Person.find(
+        {name: payload.name}
+    )
+    .then( 
+        response => {
+
+            if(!response || payload.number === "")
+            {
+                return res.status(418).json(
+                    {error: 'Name must be unique and number non empty'}     
+                );
+            }
+            try {
+                Person.create({
+                        name: payload.name,
+                        number: payload.number,
+                        id: Math.floor(Math.random() * 1000000)
+                }
+                ,(err) => {
+                    console.log(err);
+                })
+
+                return res.status(200).json({
+                    name: payload.name,
+                    number: payload.number,
+                });
+
+            }
+            catch(e) {
+                console.log(e);
+                return res.status(400).json({error: e});
+            }
+        }
+    );
 })
 
 const localPORT = 3001;

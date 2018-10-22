@@ -3,10 +3,13 @@ const mongoose = require('mongoose');
 
 const url = 'mongodb://JoeGen:uDKxpnYe7Dc3xqQ@ds125723.mlab.com:25723/fullstack-io';
 
-mongoose.connect(url);
+mongoose.connect(url, {useNewUrlParser: true})
+.then(() => {console.log("Connected.")},
+    err => {console.log("Returned error.")}
+ );
 
 const Person = mongoose.model(
-    'Note', {
+    'Person', {
         name: String,
         number: String
     }
@@ -30,6 +33,11 @@ if(newName || newNumber) {
             console.log("Person saved.")
         }
     )
+    .then(
+        () => {
+            closeConnection();
+        }
+    )
 }
 
 else {
@@ -37,13 +45,19 @@ else {
     .find({})
     .then(
         response => {
+            console.log(response)
             response.forEach(
                 person => {
-                    console.log(person);
-                }
-            )
+                    console.log(person.name + ' : ' + person.number);
+                }    )
+
         }
     )
+    .then(() => {
+        closeConnection();
+    })
 }
 
-mongoose.connection.close();
+const closeConnection = () => {
+    mongoose.connection.close();
+}
