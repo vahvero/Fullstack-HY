@@ -28,14 +28,6 @@ class App extends React.Component {
 
   componentDidMount = () => {
 
-//     PersonService.getAll().then((data) =>
-//         {
-//             this.setState({
-//                 persons: data
-//             })
-//         }
-//     )
-//   }
     this.fillPersons();
   }
 
@@ -220,7 +212,7 @@ class App extends React.Component {
         {
             this.state.persons.map(
                 (a) => {
-                    if(a.name.includes(this.state.filterString)){
+                    if(a.name && a.name.includes(this.state.filterString)){
                         return <Number key={a.name} person={a} onClickMethod={this.handleDelete}/>
                     }
                     return null

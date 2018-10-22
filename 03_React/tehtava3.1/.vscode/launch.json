@@ -10,6 +10,20 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}\\index.js"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch mongo on linux",
+            "program": "${workspaceFolder}/mongo.js",
+            "args": ""
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch mongo with args on linux",
+            "program": "${workspaceFolder}/mongo.js",
+            "args": ["Joulupukki", "12345656778"]
+        },
     ]
 }

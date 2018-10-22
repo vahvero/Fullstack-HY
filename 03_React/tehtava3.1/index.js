@@ -11,6 +11,8 @@ const morgan = require('morgan');
 
 const cors = require('cors');
 
+app.use(express.static('build'));
+
 app.use(cors());
 
 app.use(morgan(
@@ -30,8 +32,6 @@ app.use(morgan(
     }
 
 ));
-
-const port = 3001;
 
 let persons = [
     {
@@ -55,10 +55,6 @@ let persons = [
         id: 4
     }
 ]
-
-app.get('/', (req, res) => {
-    res.send('<h1>Hello world</h1>')
-})
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
@@ -138,7 +134,7 @@ app.post('/api/persons', (req, res) => {
                 id: Math.floor(Math.random() * 1000000)
         }
         persons.push(person);
-        return res.status(200).json({});
+        return res.status(200).json(person);
 
     }
     catch(e) {
@@ -147,9 +143,9 @@ app.post('/api/persons', (req, res) => {
     }
 })
 
-const PORT = 3001;
+const localPORT = 3001;
 
-const PORT = process.env.PORT || PORT
+const PORT = process.env.PORT || localPORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 });
