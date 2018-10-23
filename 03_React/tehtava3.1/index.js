@@ -107,12 +107,16 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
 
-    console.log(req.params);
+    console.log("Delete params " + JSON.stringify(req.params));
     const id = req.params.id;
 
+    if(!id){
+        return res.status(304).json({});
+    }
     Person.findOneAndDelete(
         {_id: id}
-    ).then(
+    )
+    .then(
         resp => {
             console.log("RESP " + resp)
             if(!resp){
