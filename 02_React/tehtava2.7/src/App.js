@@ -145,8 +145,8 @@ class App extends React.Component {
             }, 3000);
         }
     )
-    .catch( () => {
-
+    .catch( (e) => {
+        console.log(e);
         this.setState(
             {
                 error: 'Operation failed.'
