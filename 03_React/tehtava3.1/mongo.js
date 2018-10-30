@@ -15,6 +15,14 @@ const Person = mongoose.model(
     }
 )
 
+const formatPerson = (elem) => {
+    return {
+        name: elem.name,
+        number: elem.number,
+        id: elem._id,
+    }
+}
+
 const newName = process.argv[2];
 
 const newNumber = process.argv[3];

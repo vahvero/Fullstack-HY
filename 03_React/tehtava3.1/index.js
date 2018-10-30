@@ -1,5 +1,5 @@
 
-const {Person}  = require('./db');
+const {Person, formatPerson}  = require('./db');
 
 const express = require('express');
 
@@ -42,7 +42,7 @@ app.get('/api/persons', (req, res) => {
             
             response => {
                 console.log(response);
-                res.json(response)
+                res.json(response.map(formatPerson))
             }
             //     console.log(response);
             //     response.forEach(
@@ -107,7 +107,7 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
 
-    console.log(req.params);
+    console.log("Reg.params" + JSON.stringify(req.params));
     const id = req.params.id;
 
     Person.findOneAndDelete(
