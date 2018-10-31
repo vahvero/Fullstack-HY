@@ -39,10 +39,15 @@ app.get('/api/persons', (req, res) => {
         Person
         .find({})
         .then(
-            
             response => {
                 console.log(response);
-                res.json(response.map(formatPerson))
+                res.json(
+                    response.map(
+                        (elem) => {
+                            return formatPerson(elem);
+                        }
+                    )
+                );
             }
             //     console.log(response);
             //     response.forEach(
@@ -110,8 +115,8 @@ app.delete('/api/persons/:id', (req, res) => {
     console.log("Reg.params" + JSON.stringify(req.params));
     const id = req.params.id;
 
-    Person.findOneAndDelete(
-        {_id: id}
+    Person.findByIdAndDelete(
+        id
     ).then(
         resp => {
             console.log("RESP " + resp)
@@ -119,12 +124,13 @@ app.delete('/api/persons/:id', (req, res) => {
                 res.status(404).json({});
             }
             else{
-                res.status(302).json({});
+                console.log("Deleted.");
+                res.status(200).json({});
             }
         }
     )
     .catch(err => {
-        console.log(err);
+        // console.log(err);
         res.status(400).json({})
     });
 
@@ -185,6 +191,34 @@ app.post('/api/persons', (req, res) => {
     );
 })
 
+
+app.put('/api/persons/:id', (req, res) => {
+    console.log("Reg.params" + JSON.stringify(req.params));
+    console.log(req.body);
+
+    const id = req.params.id;
+    const payload = req.body;
+    Person.findByIdAndUpdate(
+        id,
+        payload,
+        {new: true},
+        (err, todo) => {
+            if(err) return res.status(500).send(err);
+            return res.send(todo);
+        }
+    )
+    .then(
+        (resp) => {
+            res.json(resp);
+        }
+    )
+    .catch(
+        (e) => {
+            console.log(e);
+            res.status(418);
+        }
+    )
+})
 const localPORT = 3001;
 
 const PORT = process.env.PORT || localPORT

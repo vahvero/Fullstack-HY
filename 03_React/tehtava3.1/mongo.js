@@ -16,6 +16,7 @@ const Person = mongoose.model(
 )
 
 const formatPerson = (elem) => {
+    console.log("Formatting ", elem);
     return {
         name: elem.name,
         number: elem.number,
@@ -56,8 +57,9 @@ else {
             console.log(response)
             response.forEach(
                 person => {
-                    console.log(person.name + ' : ' + person.number);
-                }    )
+                    console.log(person.name + ' : ' + person.number + ' : ' + person._id);
+                    console.log(formatPerson(person));
+                })
 
         }
     )

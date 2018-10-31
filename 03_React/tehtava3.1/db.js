@@ -15,6 +15,16 @@ const Person = mongoose.model(
     }
 )
 
+const formatPerson = (elem) => {
+    // console.log("Formatting ", elem);
+    return {
+        name: elem.name,
+        number: elem.number,
+        id: elem._id,
+    }
+}
+
 module.exports = {
     Person: Person,
+    formatPerson: formatPerson,
 }
