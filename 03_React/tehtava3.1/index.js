@@ -29,20 +29,20 @@ app.use(morgan(
             tokens.res(req, res, 'content-length'), '-',
             tokens['response-time'](req, res), 'ms',
             
-        ].join(' ')
+        ].join(' ');
     }
 
 ));
 
 
 app.get('/api/persons', (req, res) => {
-        Person
+    Person
         .find({})
         .then(
             
             response => {
-                console.log(response);
-                res.json(response)
+                // console.log(response);
+                res.json(response);
             }
             //     console.log(response);
             //     response.forEach(
@@ -65,12 +65,12 @@ app.get('/api/persons', (req, res) => {
         //         }
         //     }
         // )
-        .catch(err => {
-            console.log(err);
-            res.status(400).json({})
-        })
+        .catch(() => {
+            // console.log(err);
+            res.status(400).json({});
+        });
 
-})
+});
 
 app.get('/info', (req, res) => {
     Person
@@ -82,32 +82,32 @@ app.get('/info', (req, res) => {
                 res.send(
                     `<p>Puhelin luettelossa on ${len} numeroa.</p>
                     <p>${time}</p>`
-                )
+                );
             }
         );
-})
+});
 
 app.get('/api/persons/:id', (req, res) => {
-    console.log(req.params);
+    // console.log(req.params);
     const id = req.params.id;
     Person.find(
         {_id: id}
     )
-    .then(
-        (person) => {
-        if(!person){
-            res.status(404).json(person);
-        }
-        else {
-            res.json(person);
-        }
-    }
-    );
-})
+        .then(
+            (person) => {
+                if(!person){
+                    res.status(404).json(person);
+                }
+                else {
+                    res.json(person);
+                }
+            }
+        );
+});
 
 app.delete('/api/persons/:id', (req, res) => {
 
-    console.log("Delete params " + JSON.stringify(req.params));
+    // console.log("Delete params " + JSON.stringify(req.params));
     const id = req.params.id;
 
     if(!id){
@@ -116,23 +116,23 @@ app.delete('/api/persons/:id', (req, res) => {
     Person.findOneAndDelete(
         {_id: id}
     )
-    .then(
-        resp => {
-            console.log("RESP " + resp)
-            if(!resp){
-                res.status(404).json({});
+        .then(
+            resp => {
+                // console.log("RESP " + resp)
+                if(!resp){
+                    res.status(404).json({});
+                }
+                else{
+                    res.status(302).json({});
+                }
             }
-            else{
-                res.status(302).json({});
-            }
-        }
-    )
-    .catch(err => {
-        console.log(err);
-        res.status(400).json({})
-    });
+        )
+        .catch(() => {
+            // console.log(err);
+            res.status(400).json({});
+        });
 
-})
+});
 
 app.post('/api/persons', (req, res) => {
     // console.log(req);
@@ -142,57 +142,57 @@ app.post('/api/persons', (req, res) => {
     }
 
     const payload = req.body;
-    console.log(payload);
+    // console.log(payload);
 
     Person.find(
         {name: payload.name}
     )
-    .then(
-        response => {
-            console.log(response);
-        }
-    );
+        .then(
+            // response => {
+            //     // console.log(response);
+            // }
+        );
 
     Person.find(
         {name: payload.name}
     )
-    .then( 
-        response => {
+        .then( 
+            response => {
 
-            if(!response || payload.number === "")
-            {
-                return res.status(418).json(
-                    {error: 'Name must be unique and number non empty'}     
-                );
-            }
-            try {
-                Person.create({
+                if(!response || payload.number === '')
+                {
+                    return res.status(418).json(
+                        {error: 'Name must be unique and number non empty'}     
+                    );
+                }
+                try {
+                    Person.create({
                         name: payload.name,
                         number: payload.number,
                         id: Math.floor(Math.random() * 1000000)
+                    }
+                    ,() => {
+                        // console.log(err);
+                    });
+
+                    return res.status(200).json({
+                        name: payload.name,
+                        number: payload.number,
+                    });
+
                 }
-                ,(err) => {
-                    console.log(err);
-                })
-
-                return res.status(200).json({
-                    name: payload.name,
-                    number: payload.number,
-                });
-
+                catch(e) {
+                    // console.log(e);
+                    return res.status(400).json({error: e});
+                }
             }
-            catch(e) {
-                console.log(e);
-                return res.status(400).json({error: e});
-            }
-        }
-    );
-})
+        );
+});
 
 const localPORT = 3001;
 
-const PORT = process.env.PORT || localPORT
+const PORT = process.env.PORT || localPORT;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+//   console.log(`Server running on port ${PORT}`)
 });
 
