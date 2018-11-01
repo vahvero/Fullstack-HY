@@ -4,16 +4,16 @@ const mongoose = require('mongoose');
 const url = 'mongodb://JoeGen:uDKxpnYe7Dc3xqQ@ds125723.mlab.com:25723/fullstack-io';
 
 mongoose.connect(url, {useNewUrlParser: true})
-.then(() => {console.log("Connected.")},
-    err => {console.log("Returned error.")}
- );
+    .then(() => {console.log('Connected.');},
+        err => {console.log('Returned error.' + err);}
+    );
 
 const Person = mongoose.model(
     'Person', {
         name: String,
         number: String
     }
-)
+);
 
 const formatPerson = (elem) => {
     console.log("Formatting ", elem);
@@ -34,19 +34,19 @@ if(newName || newNumber) {
     const person = new Person({
         name: newName, 
         number: newNumber
-    })
+    });
     person
-    .save()
-    .then(
-        response => {
-            console.log("Person saved.")
-        }
-    )
-    .then(
-        () => {
-            closeConnection();
-        }
-    )
+        .save()
+        .then(
+            () => {
+                console.log('Person saved.');
+            }
+        )
+        .then(
+            () => {
+                closeConnection();
+            }
+        );
 }
 
 else {
@@ -63,11 +63,19 @@ else {
 
         }
     )
-    .then(() => {
+    .then(() => {     console.log('Connected.');},
+    err => {
+        console.log('Returned error.' + err);
+    }
+    );
+
+const Person = mongoose.model(
+    'Person', {
+    
         closeConnection();
     })
 }
 
 const closeConnection = () => {
     mongoose.connection.close();
-}
+};

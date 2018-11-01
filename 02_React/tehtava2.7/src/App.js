@@ -133,7 +133,7 @@ class App extends React.Component {
     const ok = window.confirm("Are you sure to delete " + name + "?");
     if(ok) {
         PersonService.deletePerson(id)
-        .then( () => {
+    .then(() => {
             this.setState({
                 error: name + ' deleted.'
             })
@@ -156,7 +156,7 @@ class App extends React.Component {
             this.setState({
                 error: null
             })
-        }, 3000) 
+        }, 10000) 
     }
     )
 }
@@ -194,15 +194,22 @@ class App extends React.Component {
 
         <h2>Puhelinluettelo</h2>
         
-        <InputElement label={'Rajaa näytettäviä:'} value={this.state.filterString} onChange={this.filterPersons}/>
+        <InputElement label={'Rajaa näytettäviä:'}
+        value={this.state.filterString}
+        onChange={this.filterPersons}/>
 
         <h3>Lisää numero</h3>
         <form onSubmit={this.handleClick}>
           <div>
-            <InputElement label={'Nimi:'} value={this.state.newName} onChange={this.handleNameChange} />
+            <InputElement label={'Nimi:'}
+            value={this.state.newName}
+            onChange={this.handleNameChange} />
         </div>
         <div>  
-            <InputElement label={'Numero: '} value={this.state.newNumber} onChange={this.handleNumberChange} />
+            <InputElement
+            label={'Numero: '}
+            value={this.state.newNumber}
+            onChange={this.handleNumberChange} />
           </div>
           <div>
             <button type="submit">lisää</button>
@@ -213,7 +220,9 @@ class App extends React.Component {
             this.state.persons.map(
                 (a) => {
                     if(a.name && a.name.includes(this.state.filterString)){
-                        return <Number key={a.name} person={a} onClickMethod={this.handleDelete}/>
+                        return <Number key={a.name}
+                        person={a}
+                        onClickMethod={this.handleDelete}/>
                     }
                     return null
                 }
