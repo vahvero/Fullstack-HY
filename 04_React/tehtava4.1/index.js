@@ -4,41 +4,26 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const blogRouter = require('./controllers/blogRouter');
+
 require('dotenv').config();
-
-const Blog = mongoose.model('Blog', {
-    title: String,
-    author: String,
-    url: String,
-    likes: Number
-});
-
-module.exports = Blog;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/api/blogs', blogRouter);
 
 const mongoUrl = process.env.NODE_ENV !== 'production' ? process.env.DEV_URL : process.env.PROD_URL;
-console.log(mongoUrl);
-mongoose.connect(mongoUrl, { useNewUrlParser: true } );
 
-app.get('/api/blogs', (request, response) => {
-    Blog
-        .find({})
-        .then(blogs => {
-            response.json(blogs);
-        });
-});
+// console.log(mongoUrl);
 
-app.post('/api/blogs', (request, response) => {
-    const blog = new Blog(request.body);
-
-    blog
-        .save()
-        .then(result => {
-            response.status(201).json(result);
-        });
-});
+mongoose
+    .connect(mongoUrl, { useNewUrlParser: true })
+    .then(() => {
+        console.log('Connected.');
+    })
+    .catch( e => {
+        console.log(e);
+    });
 
 const PORT = 3003;
 app.listen(PORT, () => {
