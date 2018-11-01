@@ -5,6 +5,8 @@ const listFunctions = require('../utils/listFunctions');
 const filterArray = listFunctions.filterArray;
 const totalLikes = listFunctions.totalLikes;
 const favoriteBlog = listFunctions.favoriteBlog;
+const mostBlogs = listFunctions.mostBlogs; 
+const mostLikes = listFunctions.mostLikes;
 
 var testArray = new Array();
 
@@ -68,7 +70,25 @@ test('Test favoriteBlog2', () => {
         url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
         likes: 12,
     };
+    expect(res).toEqual(exp);
+});
+
+test('Test most blogs', () => {
+    const res = mostBlogs(testBlogs);
+    const exp = {
+        author: 'Robert C. Martin',
+        blogs: 3,
+    };
 
     expect(res).toEqual(exp);
+});
 
+test('Test most likes', () => {
+    const res = mostLikes(testBlogs);
+    const exp = {
+        author: 'Edsger W. Dijkstra',
+        likes: 17,
+    };
+
+    expect(res).toEqual(exp);
 });
