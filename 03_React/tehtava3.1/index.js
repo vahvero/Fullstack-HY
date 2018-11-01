@@ -34,13 +34,16 @@ app.use(morgan(
 
 ));
 
+if(process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 app.get('/api/persons', (req, res) => {
     Person
         .find({})
         .then(
             response => {
-                console.log(response);
+                // console.log(response);
                 res.json(
                     response.map(
                         (elem) => {
@@ -112,27 +115,27 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
 
-    console.log("Reg.params" + JSON.stringify(req.params));
+    // console.log('Reg.params' + JSON.stringify(req.params));
     const id = req.params.id;
 
     Person.findByIdAndDelete(
         id
     ).then(
         resp => {
-            console.log("RESP " + resp)
+            // console.log('RESP ' + resp);
             if(!resp){
                 res.status(404).json({});
             }
             else{
-                console.log("Deleted.");
+                // console.log('Deleted.');
                 res.status(200).json({});
             }
         }
     )
-    .catch(err => {
+        .catch(err => {
         // console.log(err);
-        res.status(400).json({})
-    });
+            res.status(400).json({});
+        });
 
 });
 
@@ -193,8 +196,8 @@ app.post('/api/persons', (req, res) => {
 
 
 app.put('/api/persons/:id', (req, res) => {
-    console.log("Reg.params" + JSON.stringify(req.params));
-    console.log(req.body);
+    // console.log('Reg.params' + JSON.stringify(req.params));
+    // console.log(req.body);
 
     const id = req.params.id;
     const payload = req.body;
@@ -207,18 +210,18 @@ app.put('/api/persons/:id', (req, res) => {
             return res.send(todo);
         }
     )
-    .then(
-        (resp) => {
-            res.json(resp);
-        }
-    )
-    .catch(
-        (e) => {
-            console.log(e);
-            res.status(418);
-        }
-    )
-})
+        .then(
+            (resp) => {
+                res.json(resp);
+            }
+        )
+        .catch(
+            (e) => {
+                // console.log(e);
+                res.status(418);
+            }
+        );
+});
 const localPORT = 3001;
 
 const PORT = process.env.PORT || localPORT;

@@ -70,9 +70,9 @@ else {
     );
 
 const Person = mongoose.model(
-    'Person', {
-    
-        closeConnection();
+    'Person', 
+    {
+        closeConnection()
     })
 }
 

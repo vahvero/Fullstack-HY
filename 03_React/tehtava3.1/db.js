@@ -1,7 +1,9 @@
 
 const mongoose = require('mongoose');
 
-const url = 'mongodb://JoeGen:uDKxpnYe7Dc3xqQ@ds125723.mlab.com:25723/fullstack-io';
+require('dotenv').config();
+
+const url = process.env.NODE_ENV !== 'production' ? process.env.DEV_URL : process.env.PROD_URL ;
 
 mongoose.connect(url,  { useNewUrlParser: true } )
     .then(() => {
@@ -24,10 +26,10 @@ const formatPerson = (elem) => {
         name: elem.name,
         number: elem.number,
         id: elem._id,
-    }
-}
+    };
+};
 
 module.exports = {
     Person: Person,
     formatPerson: formatPerson,
-}
+};
