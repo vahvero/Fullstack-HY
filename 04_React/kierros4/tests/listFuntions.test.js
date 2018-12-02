@@ -1,5 +1,5 @@
 
-
+const validateBlog = require('../models/blog').validateBlog;
 const listFunctions = require('../utils/listFunctions');
 
 const filterArray = listFunctions.filterArray;
@@ -7,6 +7,8 @@ const totalLikes = listFunctions.totalLikes;
 const favoriteBlog = listFunctions.favoriteBlog;
 const mostBlogs = listFunctions.mostBlogs; 
 const mostLikes = listFunctions.mostLikes;
+
+
 
 var testArray = new Array();
 
@@ -91,4 +93,47 @@ test('Test most likes', () => {
     };
 
     expect(res).toEqual(exp);
+});
+
+test('Test validateBlog with already valid input', () => {
+    let blog = {
+        title: 'NewPostTestTitle',
+        author: 'JohnyCäshbä',
+        url: 'https://lolpatterns.com/',
+        likes: 66,
+    };
+
+    expect(blog).toBe(validateBlog(blog)); 
+});
+
+test('Test validateBlog with incorrect input',() => {
+
+    let x = {};
+
+    const expectedResult = {
+        'title': 'DefaultTitle',
+        'author': 'DefaultAuthor',
+        'url': 'http://www.google.com',
+        'likes': 0,
+    };
+
+    expect(validateBlog(x)).toEqual(expectedResult);
+});
+
+test('Test validateBlog with incorrect likes',() => {
+
+    let x = {
+        'title': 'DefaultTitle',
+        'author': 'DefaultAuthor',
+        'url': 'http://www.google.com',
+    };
+
+    const expectedResult = {
+        'title': 'DefaultTitle',
+        'author': 'DefaultAuthor',
+        'url': 'http://www.google.com',
+        'likes': 0,
+    };
+
+    expect(validateBlog(x)).toEqual(expectedResult);
 });

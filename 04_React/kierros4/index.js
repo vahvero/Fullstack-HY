@@ -12,7 +12,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/blogs', blogRouter);
 
-const mongoUrl = process.env.NODE_ENV !== 'production' ? process.env.DEV_URL : process.env.PROD_URL;
+const mongoUrl = process.env.NODE_ENV !== 'production' ? 
+    process.env.DEV_URL : process.env.PROD_URL;
 
 // console.log(mongoUrl);
 
@@ -27,6 +28,8 @@ mongoose
     });
 
 const PORT = 3003;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = {app, server};

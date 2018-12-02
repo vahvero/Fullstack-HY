@@ -1,5 +1,5 @@
 const blogRouter = require('express').Router();
-const Blog = require('../models/blog');
+const {Blog, validateBlog} = require('../models/blog');
 
 const formatBlog = (blog) => {
     return {
@@ -19,18 +19,36 @@ blogRouter.get('/', (request, response) => {
         });
 });
 
-blogRouter.post('/', (request, response) => {
-    const blog = new Blog(request.body);
+blogRouter.post('/', async (request, response) => {
+    let blog = request.body;
 
-    blog
-        .save()
-        .then(result => {
-            response.status(201).json(result);
-        })
-        .catch(e => {
-            console.log(e);
-            response.status(304).json({});
-        });
+    // console.log(blog);
+
+    blog = validateBlog(blog);
+
+    // console.log(blog);
+
+    const newBlog = new Blog(blog);
+
+    // newBlog
+    //     .save()
+    //     .then(result => {
+    //         response.status(201).json(result);
+    //     })
+    //     .catch(e => {
+    //         console.log(e);
+    //         response.status(304).json({});
+    //     });
+    try {
+        const result = await newBlog.save();
+        response.status(201).json(result);
+
+    }
+    catch(e) {
+        console.log(e);
+        response.status(304).json({});
+    }
+    
 });
 
 // blogRouter.delete('/:id' (request, response) => {
