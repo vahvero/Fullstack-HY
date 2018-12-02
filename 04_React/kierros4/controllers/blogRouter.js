@@ -28,6 +28,11 @@ blogRouter.post('/', async (request, response) => {
 
     // console.log(blog);
 
+    if(!blog) {
+        response.status(400).json({});
+        return;
+    }
+
     const newBlog = new Blog(blog);
 
     // newBlog

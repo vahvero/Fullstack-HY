@@ -110,14 +110,36 @@ test('Test validateBlog with incorrect input',() => {
 
     let x = {};
 
-    const expectedResult = {
-        'title': 'DefaultTitle',
-        'author': 'DefaultAuthor',
-        'url': 'http://www.google.com',
-        'likes': 0,
+    // const expectedResult = {
+    //     'title': 'DefaultTitle',
+    //     'author': 'DefaultAuthor',
+    //     'url': 'http://www.google.com',
+    //     'likes': 0,
+    // };
+
+    // expect(validateBlog(x)).toEqual(expectedResult);
+
+    expect(validateBlog(x)).toEqual(false);
+
+    x = {
+        title: 'DefaultTitle',
     };
 
-    expect(validateBlog(x)).toEqual(expectedResult);
+    expect(validateBlog(x)).toEqual(false);
+
+    x = {
+        title: 'DefaultTitle',
+        url: 'DefaultUrl',
+    };
+
+    const expection = {
+        title: 'DefaultTitle',
+        url: 'DefaultUrl',
+        author: 'DefaultAuthor',
+        likes: 0,
+    };
+
+    expect(validateBlog(x)).toEqual(expection);
 });
 
 test('Test validateBlog with incorrect likes',() => {
@@ -137,3 +159,5 @@ test('Test validateBlog with incorrect likes',() => {
 
     expect(validateBlog(x)).toEqual(expectedResult);
 });
+
+

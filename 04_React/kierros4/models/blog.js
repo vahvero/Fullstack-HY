@@ -10,13 +10,13 @@ const Blog = mongoose.model('Blog', {
 
 const validateBlog = (blog) => {
     if(blog.title == undefined) {
-        blog.title = 'DefaultTitle';
+        return false;
     }
     if(blog.author == undefined) {
         blog.author = 'DefaultAuthor';
     }
     if(blog.url == undefined) {
-        blog.url = 'http://www.google.com';
+        return false;
     }
     if(blog.likes == undefined || blog.likes < 0){
         blog.likes = 0;

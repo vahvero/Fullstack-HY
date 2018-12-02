@@ -39,9 +39,9 @@ test('Test blog post addition', async () => {
     expect(content).toContain(intBlog.title);
 });
 
-test('Test invalid blog', async () => {
+test('Test invalid likes blog', async () => {
     const partFailBlog = {
-        title: 'NewInvalidPostTestTitle',
+        title: 'NewInvalidLikesTestTitle',
         author: 'JohnyCäshbä',
         url: 'https://lolpatterns.com/',
     };
@@ -72,6 +72,42 @@ test('Test invalid blog', async () => {
     expect(content.likes).toBe(0);
 });
 
+test('Test invalid url and invalid title blogs', async () => {
+
+    const blogs_ = await api.get('/api/blogs');
+    const len1 = blogs_.length;
+
+    let failBlog = {
+        title: 'NewInvalidUrlTitle',
+        author: 'JohnyCäshbä',
+        // url: 'https://lolpatterns.com/',
+        likes: 10,
+    };
+
+    await api.post('/api/blogs')
+        .send(failBlog)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+    failBlog = {
+        // title: 'NewInvalidUrlTitle',
+        author: 'JohnyCäshbä',
+        url: 'https://lolpatterns.com/',
+        likes: 10,
+    };
+
+    await api.post('/api/blogs')
+        .send(failBlog)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+    const getBlogs = await api.get('/api/blogs');
+
+    const len2 = getBlogs.length;
+
+    expect(len1).toEqual(len2);
+
+});
 
 beforeAll(async () => {
     await Blog.remove({});
