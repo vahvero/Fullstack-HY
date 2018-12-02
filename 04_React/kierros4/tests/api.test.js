@@ -1,7 +1,8 @@
 const supertest = require('supertest');
 const {app, server} = require('../index');
-const {Blog} = require('../models/blog');
+const {Blog, formatBlog} = require('../models/blog');
 const testBlogs = require('./testBlogs').blogs;
+const {blogsInDb, nonExistingId} = require('./testHelper');
 
 const api = supertest(app);
 
@@ -15,7 +16,7 @@ test('Blogs are returned as json', async () => {
 
 test('Blogs length is correct', async () => {
     const len = testBlogs.length;
-    const blogs = await Blog.find({});
+    const blogs = await blogsInDb();
     expect(blogs.length).toEqual(len);
 });
 
@@ -37,6 +38,9 @@ test('Test blog post addition', async () => {
 
     expect(response.body.length).toBe(testBlogs.length + 1);
     expect(content).toContain(intBlog.title);
+    //Remove the added blog
+    await Blog.remove({intBlog});
+
 });
 
 test('Test invalid likes blog', async () => {
@@ -57,24 +61,19 @@ test('Test invalid likes blog', async () => {
         return elem.title === partFailBlog.title;
     });
 
-    // console.log(content);
     expect(content == undefined).toBe(false);
-
-    // expect(content).toEqual({
-    //     title: 'NewInvalidPostTestTitle',
-    //     author: 'JohnyCäshbä',
-    //     url: 'https://lolpatterns.com/',
-    //     likes: 0,
-    // });
 
     expect(content.likes == undefined).toBe(false);
 
     expect(content.likes).toBe(0);
+    // Remove the added blog
+    await Blog.remove(partFailBlog);
+
 });
 
 test('Test invalid url and invalid title blogs', async () => {
 
-    const blogs_ = await api.get('/api/blogs');
+    const blogs_ = blogsInDb();
     const len1 = blogs_.length;
 
     let failBlog = {
@@ -101,7 +100,7 @@ test('Test invalid url and invalid title blogs', async () => {
         .expect(400)
         .expect('Content-Type', /application\/json/);
 
-    const getBlogs = await api.get('/api/blogs');
+    const getBlogs = blogsInDb();
 
     const len2 = getBlogs.length;
 
@@ -109,6 +108,75 @@ test('Test invalid url and invalid title blogs', async () => {
 
 });
 
+test('Test singular delete', async () => {
+    
+    const additionBlog = {
+        title: 'ValidBlogTest',
+        author: 'JohnyCäshbä',
+        url: 'https://lolpatterns.com/',
+        likes: 10,
+    };
+
+    const createBlog = new Blog(additionBlog);
+
+    await createBlog.save();
+
+    // Deletion
+    await api
+        .delete('/api/blogs/' + createBlog._id)
+        .expect(200);
+
+});
+
+test('Test invalid id delete', async () => {
+    const invalidId = nonExistingId();
+
+    await api
+        .delete('/api/blogs/' + invalidId)
+        .expect(404);
+});
+
+test('Test valid put', async () => {
+    const replaceTitle = 'TestPutTitle';
+    const testBlog = new Blog();
+    await testBlog.save();
+
+    await api
+        .put('/api/blogs/' + testBlog._id)
+        .send({
+            title: replaceTitle,
+        })
+        .expect(200);
+
+    const blogs = await blogsInDb();
+    
+    const found = blogs.find((elem) => {
+        return elem.title === replaceTitle;
+    });
+
+    let compareBlog = testBlog;
+    compareBlog.title = replaceTitle;
+
+    expect(found).toEqual(formatBlog(compareBlog));
+
+    await Blog.remove({_id: testBlog._id});
+});
+
+test('Test invalid put', async () => {
+    const invalidId = nonExistingId();
+
+    const replaceTitle = 'TestInvalidIdPutTitle';
+
+    await api
+        .put('/api/blogs/' + invalidId)
+        .send({
+            title: replaceTitle,
+        })
+        .expect(404);
+
+});
+
+// Reset the database
 beforeAll(async () => {
     await Blog.remove({});
     const blogObjects = testBlogs.map(elem => new Blog(elem));
@@ -117,6 +185,7 @@ beforeAll(async () => {
 
 });
 
+//Close the server connection
 afterAll(() => {
     server.close();
 });

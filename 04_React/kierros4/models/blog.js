@@ -8,6 +8,17 @@ const Blog = mongoose.model('Blog', {
     likes: Number
 });
 
+const formatBlog = (blog) => {
+    return {
+        id: blog._id,
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes,
+    };
+};
+
+
 const validateBlog = (blog) => {
     if(blog.title == undefined) {
         return false;
@@ -25,4 +36,4 @@ const validateBlog = (blog) => {
     return blog;
 };
 
-module.exports = {Blog, validateBlog};
+module.exports = {Blog, validateBlog, formatBlog};

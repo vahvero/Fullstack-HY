@@ -1,15 +1,15 @@
 const blogRouter = require('express').Router();
-const {Blog, validateBlog} = require('../models/blog');
+const {Blog, validateBlog, formatBlog} = require('../models/blog');
 
-const formatBlog = (blog) => {
-    return {
-        id: blog._id,
-        title: blog.title,
-        author: blog.author,
-        url: blog.url,
-        likes: blog.likes,
-    };
-};
+// const formatBlog = (blog) => {
+//     return {
+//         id: blog._id,
+//         title: blog.title,
+//         author: blog.author,
+//         url: blog.url,
+//         likes: blog.likes,
+//     };
+// };
 
 blogRouter.get('/', (request, response) => {
     Blog
@@ -56,8 +56,31 @@ blogRouter.post('/', async (request, response) => {
     
 });
 
-// blogRouter.delete('/:id' (request, response) => {
+blogRouter.delete('/:id', async (request, response) => {
 
-// })
+    try {
+        await Blog.remove({
+            _id: request.params.id,
+        });
+        response.status(200).json({});
+    } 
+    catch(e) {
+        response.status(404).json({});
+    }
+});
+
+blogRouter.put('/:id', async (request, response) => {
+
+    const id = request.params.id;
+    const payload = request.body;
+    try {
+        await Blog.findByIdAndUpdate(id, payload);
+        response.status(200).json({});
+    }
+    catch(e) {
+        response.status(404).json({});
+    }
+
+});
 
 module.exports = blogRouter;
