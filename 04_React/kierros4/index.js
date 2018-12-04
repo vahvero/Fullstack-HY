@@ -5,12 +5,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const blogRouter = require('./controllers/blogRouter');
+const {userRouter} = require('./controllers/userRouter');
 
 require('dotenv').config();
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/blogs', blogRouter);
+app.use('/api/users', userRouter);
 
 const mongoUrl = process.env.NODE_ENV !== 'production' ? 
     process.env.DEV_URL : process.env.PROD_URL;
@@ -27,7 +29,7 @@ mongoose
         return;
     });
 
-const PORT = 3003;
+const PORT = process.env.NODE_ENV === 'test' ? 0 : 3003;
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
