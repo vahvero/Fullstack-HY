@@ -157,7 +157,7 @@ test('Test valid put', async () => {
     let compareBlog = testBlog;
     compareBlog.title = replaceTitle;
 
-    expect(found).toEqual(formatBlog(compareBlog));
+    expect(found).toEqual(Blog.format(compareBlog));
 
     await Blog.remove({_id: testBlog._id});
 });

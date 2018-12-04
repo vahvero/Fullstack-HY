@@ -1,5 +1,5 @@
 const blogRouter = require('express').Router();
-const {Blog, validateBlog, formatBlog} = require('../models/blog');
+const {Blog, validateBlog} = require('../models/blog');
 
 // const formatBlog = (blog) => {
 //     return {
@@ -15,7 +15,7 @@ blogRouter.get('/', (request, response) => {
     Blog
         .find({})
         .then(blogs => {
-            response.json(blogs.map(formatBlog))
+            response.json(blogs.map(Blog.format));
         });
 });
 

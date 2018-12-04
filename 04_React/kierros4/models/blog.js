@@ -1,14 +1,22 @@
 
 const mongoose = require('mongoose');
 
-const Blog = mongoose.model('Blog', {
+// const Blog = mongoose.model('Blog', {
+//     title: String,
+//     author: String,
+//     url: String,
+//     likes: Number
+// });
+
+const blogSchema = new mongoose.Schema({
     title: String,
     author: String,
     url: String,
-    likes: Number
+    likes: Number,
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 });
 
-const formatBlog = (blog) => {
+blogSchema.statics.format = (blog) => {
     return {
         id: blog._id,
         title: blog.title,
@@ -17,6 +25,18 @@ const formatBlog = (blog) => {
         likes: blog.likes,
     };
 };
+
+const Blog = mongoose.model('Blog', blogSchema);
+
+// const formatBlog = (blog) => {
+//     return {
+//         id: blog._id,
+//         title: blog.title,
+//         author: blog.author,
+//         url: blog.url,
+//         likes: blog.likes,
+//     };
+// };
 
 
 const validateBlog = (blog) => {
@@ -36,4 +56,4 @@ const validateBlog = (blog) => {
     return blog;
 };
 
-module.exports = {Blog, validateBlog, formatBlog};
+module.exports = {Blog, validateBlog};

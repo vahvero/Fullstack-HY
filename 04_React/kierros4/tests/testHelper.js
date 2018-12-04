@@ -1,5 +1,5 @@
 
-const {Blog, formatBlog} = require('../models/blog');
+const {Blog} = require('../models/blog');
 
 // const testBlogs = require('./testBlogs').blogs;
 
@@ -15,7 +15,7 @@ const nonExistingId = async () => {
 
 const blogsInDb = async () => {
     const blogs = await Blog.find({});
-    return blogs.map(elem => formatBlog(elem));
+    return blogs.map(elem => Blog.format(elem));
 };
 
 module.exports = {

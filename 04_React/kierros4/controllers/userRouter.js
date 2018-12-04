@@ -27,11 +27,18 @@ userRouter.post('/', async (req, resp) => {
 
         const savedUser = await user.save();
 
-        resp.status(201).json(savedUser);
+        resp.status(201).json(
+            User.format(savedUser)
+        );
     } catch(e) {
         console.log(e);
         resp.status(500).json({error: 'Creation failure. ' + e});
     }
+});
+
+userRouter.get('/', async (req, resp) => {
+    const users = await User.find({});
+    resp.status(200).json(users.map(elem => User.format(elem)));
 });
 
 const validateUser = async (user) => {
@@ -54,5 +61,14 @@ const validateUser = async (user) => {
         return false;
     }
 };
+
+// const formatUser = (user) => {
+//     return {
+//         id: user.id,
+//         username: user.username,
+//         name: user.name,
+//         notes: user.notes
+//     }
+// }
 
 module.exports = {userRouter, validateUser};
