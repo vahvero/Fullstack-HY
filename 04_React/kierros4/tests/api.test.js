@@ -1,6 +1,6 @@
 const supertest = require('supertest');
 const {app, server} = require('../index');
-const {Blog, formatBlog} = require('../models/blog');
+const {Blog, z} = require('../models/blog');
 const testBlogs = require('./testBlogs').blogs;
 const {blogsInDb, nonExistingId} = require('./testHelper');
 
