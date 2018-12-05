@@ -3,6 +3,9 @@ const supertest = require('supertest');
 const {User} = require('../models/user');
 const {validateUser} = require('../controllers/userRouter');
 const {app, server} = require('../index');
+const {Blog} = require('../models/blog');
+const {generateUser} = require('./testHelper');
+
 // const {generateUser} = require('./testHelper');
 const api = supertest(app);
 
@@ -92,14 +95,49 @@ test('Test with existing username', async () => {
         .expect(400);
 });
 
+test('Test GET users', async () => {
 
+    const user = new User();
+    await user.save();
 
+    const blog = new Blog({
+        user: user._id,
+    });
+    await blog.save();
+
+    const response = await api.get('/api/users')
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+    
+    const body = response.body;
+    
+    const blogs = body.map(elem => elem.blogs);
+    expect(blogs).toBeDefined();
+
+    const userResponse = body.find((elem) => {
+        return elem.username === user.username;
+    });
+    
+    expect(userResponse).toBeDefined();
+
+    expect(userResponse.blogs).toContain(blog._id);
+
+});
 // Reset database
 beforeAll(async () => {
+    // await Blog.deleteMany({});
     await User.deleteMany({});
-    // console.log();
+    // const user = await generateUser();
+    // const blogObjects = testBlogs.map(elem => {
+    //     elem.user = user.id;
+    //     return new Blog(elem);
+    // });
+    // const promises = blogObjects.map(blog => blog.save());
+    // await Promise.all(promises);
+
 });
 
-afterAll( () => {
+//Close the server connection
+afterAll(() => {
     server.close();
 });

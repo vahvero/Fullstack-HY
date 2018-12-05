@@ -32,10 +32,13 @@ test('Blogs are returned as json', async () => {
         .get('/api/blogs')
         .expect(200)
         .expect('Content-Type', /application\/json/);
+
+    
 });
 
 test('Blogs length is correct', async () => {
     const len = testBlogs.length;
+
     const blogs = await blogsInDb();
     expect(blogs.length).toEqual(len);
 });
