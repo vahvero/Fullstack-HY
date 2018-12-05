@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const userRouter = require('express').Router();
 const {User} = require('../models/user');
+const {Blog} = require('../models/blog');
 
 userRouter.post('/', async (req, resp) => {
 
@@ -38,9 +39,48 @@ userRouter.post('/', async (req, resp) => {
 });
 
 userRouter.get('/', async (req, resp) => {
+
+    // await User.deleteMany({username: undefined});
     const users = await User.find({});
-    resp.status(200).json(users.map(elem => User.format(elem)));
+
+    // throw users;
+
+    const formattedUsers = users.map(User.format);
+
+    // throw formattedUsers;
+
+    const promises = formattedUsers.map(elem => formatGetUsers(elem));
+
+    const ret = await Promise.all(promises);
+
+    // throw ret;
+
+    resp.status(200).json(ret);
 });
+
+const formatGetUsers = async (user) => {
+    const blogs = await Blog.find({user: user.id});
+    const formattedBlogs = blogs.map(Blog.format);
+
+    // throw formattedBlogs;
+    const ret =  {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        adult: user.adult,
+        blogs: formattedBlogs.map(elem => {
+            return {
+                id: elem.id,
+                likes: elem.likes,
+                author: elem.author,
+                title: elem.title,
+                url: elem.url,
+            };
+        }),
+    };
+
+    return ret;
+};  
 
 const validateUser = async (user) => {
     try {

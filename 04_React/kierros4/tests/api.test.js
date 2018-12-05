@@ -12,13 +12,28 @@ beforeAll(async () => {
     await Blog.deleteMany({});
     await User.deleteMany({});
     const user = await generateUser();
+
+    const originalBlogs = Blog.find({});
+
+    if(originalBlogs.length > 0) {
+        throw 'Extra blogs in database after delete';
+    }
+
     const blogObjects = testBlogs.map(elem => {
         elem.user = user.id;
         return new Blog(elem);
     });
+
+    // throw blogObjects;
+
     const promises = blogObjects.map(blog => blog.save());
     await Promise.all(promises);
 
+    const blogs = await Blog.find({});
+
+    if(blogs.length != testBlogs.length) {
+        throw 'Extra values in database: current values' + blogs;
+    }
 });
 
 //Close the server connection
@@ -43,6 +58,31 @@ test('Blogs length is correct', async () => {
     expect(blogs.length).toEqual(len);
 });
 
+test('Test blogs contain user information', async () => {
+
+    const resp = await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+
+    const blogs = resp.body;
+
+    // const userListing = blogs.map(blog => blog.user);
+
+    // userListing.map((user) => {
+    //     expect(user.id).toBeDefined();
+    //     expect(user.username).toBeDefined();
+    //     expect(user.name).toBeDefined();
+    // });
+
+    blogs.map((elem) => {
+        expect(elem.user.id).toBeDefined();
+        expect(elem.user.username).toBeDefined();
+        expect(elem.user.name).toBeDefined();
+    });
+
+});
+
 test('Test blog post addition', async () => {
 
     const testUser = await generateUser();
@@ -50,6 +90,9 @@ test('Test blog post addition', async () => {
     // console.log('Test user: ' + JSON.stringify(testUser));
     // console.log(testUser.id);
     expect(testUser.id).toBeDefined();
+
+    const currentBlogs = await blogsInDb();
+    const len1 = currentBlogs.length;
 
     const intBlog = {
         title: 'NewPostTestTitle',
@@ -74,7 +117,7 @@ test('Test blog post addition', async () => {
 
     // console.log(userBlogs);
 
-    expect(response.body.length).toBe(testBlogs.length + 1);
+    expect(response.body.length).toBe(len1 + 1);
     expect(titleContent).toContain(intBlog.title);
     expect(userBlogs.blogs).toContain(addedBlog._id);
 
@@ -120,7 +163,7 @@ test('Test invalid likes blog', async () => {
 
 
     // Remove the added blog
-    await Blog.remove(partFailBlog);
+    await Blog.deleteOne(partFailBlog);
     await User.findByIdAndDelete(testUser.id);
 });
 
@@ -165,6 +208,7 @@ test('Test invalid url and invalid title blogs', async () => {
     expect(len1).toEqual(len2);
 
     await User.deleteOne({testUser});
+    await Blog.deleteMany(failBlog);
 
 });
 

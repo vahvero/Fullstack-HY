@@ -5,6 +5,7 @@ const {validateUser} = require('../controllers/userRouter');
 const {app, server} = require('../index');
 const {Blog} = require('../models/blog');
 const {generateUser} = require('./testHelper');
+const testBlogs = require('./testBlogs').blogs;
 
 // const {generateUser} = require('./testHelper');
 const api = supertest(app);
@@ -25,11 +26,50 @@ const validUser = {
     blogs: []
 };
 
+//Reset the database
+beforeAll(async () => {
+    await Blog.deleteMany({});
+    await User.deleteMany({});
+    const user = await generateUser();
+    const blogObjects = testBlogs.map(elem => {
+        elem.user = user.id;
+        return new Blog(elem);
+    });
 
+
+    const promises = blogObjects.map(blog => {
+        blog.save();
+        // user.blogs = user.blogs.concat(blog._id);
+    });
+
+    const user1 = await User.findById(user.id);
+
+    // throw blogObjects.map(elem => elem._id);
+
+    blogObjects.map(
+        (elem) => {
+            user1.blogs = user1.blogs.concat(elem._id);
+        }
+    );
+    await user1.save();
+    await Promise.all(promises);
+
+    const user2 = await User.findById(user.id);
+
+    if(user2.blogs.length === 0) {
+        throw 'Enviroment error';
+    }
+
+});
+
+//Close the server connection
+afterAll(() => {
+    server.close();
+});
 
 test('test invalid user post', async () => {
 
-    const response = await api.post('/api/users')
+    await api.post('/api/users')
         .send(invalidUser)
         .expect(400);
     await User.deleteOne({username: invalidUser.username});
@@ -46,7 +86,7 @@ test('test valid user post', async () => {
     };
     
 
-    const response = await api.post('/api/users')
+    await api.post('/api/users')
         .send(user)
         .expect(201);
     // Remove the valid user
@@ -93,51 +133,54 @@ test('Test with existing username', async () => {
     await api.post('/api/users')
         .send(newUser)
         .expect(400);
+
+    await User.findByIdAndDelete(existingUser._id);
 });
 
 test('Test GET users', async () => {
 
-    const user = new User();
-    await user.save();
+    // const user = new User();
+    // await user.save();
 
-    const blog = new Blog({
-        user: user._id,
-    });
-    await blog.save();
+    // const blog = new Blog({
+    //     user: user._id,
+    // });
+    // await blog.save();
 
     const response = await api.get('/api/users')
         .expect(200)
         .expect('Content-Type', /application\/json/);
     
     const body = response.body;
-    
-    const blogs = body.map(elem => elem.blogs);
-    expect(blogs).toBeDefined();
 
-    const userResponse = body.find((elem) => {
-        return elem.username === user.username;
+    expect(body).toBeDefined();
+    let users = await User.find({});
+    users = users.map(User.format);
+    expect(body.length).toEqual(users.length);
+
+    // throw body;
+
+    body.map((elem) => {
+        expect(elem).toBeDefined();
+        expect(elem.id).toBeDefined();
+        expect(elem.username).toBeDefined();
+        expect(elem.name).toBeDefined();
+        expect(elem.adult).toBeDefined();
+        expect(elem.blogs).toBeDefined();
     });
-    
-    expect(userResponse).toBeDefined();
 
-    expect(userResponse.blogs).toContain(blog._id);
+    // const blogs = body.map(elem => elem.blogs);
+    // expect(blogs).toBeDefined();
 
-});
-// Reset database
-beforeAll(async () => {
-    // await Blog.deleteMany({});
-    await User.deleteMany({});
-    // const user = await generateUser();
-    // const blogObjects = testBlogs.map(elem => {
-    //     elem.user = user.id;
-    //     return new Blog(elem);
+    // const userResponse = body.find((elem) => {
+    //     return elem.username === user.username;
     // });
-    // const promises = blogObjects.map(blog => blog.save());
-    // await Promise.all(promises);
+    
+    // expect(userResponse).toBeDefined();
 
-});
+    // expect(userResponse.blogs).toContain(blog.id);
 
-//Close the server connection
-afterAll(() => {
-    server.close();
+    // await User.deleteOne(user);
+    // await Blog.deleteOne(blog);
+
 });

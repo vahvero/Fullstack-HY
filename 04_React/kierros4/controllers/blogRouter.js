@@ -2,13 +2,43 @@ const blogRouter = require('express').Router();
 const {Blog, validateBlog} = require('../models/blog');
 const {User} = require('../models/user');
 
-blogRouter.get('/', (request, response) => {
-    Blog
-        .find({})
-        .then(blogs => {
-            response.json(blogs.map(Blog.format));
-        });
+blogRouter.get('/', async (request, response) => {
+    // Blog
+    //     .find({})
+    //     .then(blogs => {
+    //         response.json(blogs.map(Blog.format));
+    //     });
+
+    const blogs = await Blog.find({});
+    
+    const formattedBlogs = blogs.map(Blog.format);
+
+    const promises = formattedBlogs.map(elem => formatGetBlog(elem));
+
+    const ret = await Promise.all(promises);
+
+    // console.log(ret);
+
+    response.status(200).json(ret);
 });
+
+
+const formatGetBlog = async (blog) => {
+    const user = await User.findById(blog.user);
+    return {
+        id: blog.id,
+        user: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+        },
+        likes: blog.likes,
+        author: blog.author,
+        title: blog.title,
+        url: blog.url,
+    };
+};
+
 
 blogRouter.post('/', async (request, response) => {
     try {
