@@ -1,10 +1,30 @@
 const supertest = require('supertest');
 const {app, server} = require('../index');
-const {Blog, z} = require('../models/blog');
+const {Blog} = require('../models/blog');
 const testBlogs = require('./testBlogs').blogs;
-const {blogsInDb, nonExistingId} = require('./testHelper');
+const {User} = require('../models/user');
+const {blogsInDb, nonExistingId, generateUser} = require('./testHelper');
 
 const api = supertest(app);
+
+// Reset the database
+beforeAll(async () => {
+    await Blog.deleteMany({});
+    await User.deleteMany({});
+    const user = await generateUser();
+    const blogObjects = testBlogs.map(elem => {
+        elem.user = user.id;
+        return new Blog(elem);
+    });
+    const promises = blogObjects.map(blog => blog.save());
+    await Promise.all(promises);
+
+});
+
+//Close the server connection
+afterAll(() => {
+    server.close();
+});
 
 
 test('Blogs are returned as json', async () => {
@@ -21,11 +41,19 @@ test('Blogs length is correct', async () => {
 });
 
 test('Test blog post addition', async () => {
+
+    const testUser = await generateUser();
+
+    // console.log('Test user: ' + JSON.stringify(testUser));
+    // console.log(testUser.id);
+    expect(testUser.id).toBeDefined();
+
     const intBlog = {
         title: 'NewPostTestTitle',
         author: 'JohnyCäshbä',
         url: 'https://lolpatterns.com/',
         likes: 66,
+        user: testUser.id,
     };
 
     await api.post('/api/blogs')
@@ -34,20 +62,36 @@ test('Test blog post addition', async () => {
         .expect('Content-Type', /application\/json/);
 
     const response = await api.get('/api/blogs');
-    const content = response.body.map(x => x.title);
+    const titleContent = response.body.map(x => x.title);
+    
+    const addedBlog = await Blog.findOne({title: intBlog.title});
+
+    const userBlogs = await User.findById(testUser.id);
+    expect(userBlogs.blogs).toBeDefined();
+
+    // console.log(userBlogs);
 
     expect(response.body.length).toBe(testBlogs.length + 1);
-    expect(content).toContain(intBlog.title);
+    expect(titleContent).toContain(intBlog.title);
+    expect(userBlogs.blogs).toContain(addedBlog._id);
+
     //Remove the added blog
-    await Blog.remove({intBlog});
+    await Blog.deleteOne({intBlog});
+    await User.deleteOne({testUser});
 
 });
 
+
 test('Test invalid likes blog', async () => {
+
+    const testUser = await generateUser(); 
+    expect(testUser.id).toBeDefined();
+
     const partFailBlog = {
         title: 'NewInvalidLikesTestTitle',
         author: 'JohnyCäshbä',
         url: 'https://lolpatterns.com/',
+        user: testUser.id,
     };
 
     await api.post('/api/blogs')
@@ -61,26 +105,37 @@ test('Test invalid likes blog', async () => {
         return elem.title === partFailBlog.title;
     });
 
+    const addedBlog = await Blog.findOne({title: partFailBlog.title});
+
+    const userBlogs = await User.findById(testUser.id);
+    expect(userBlogs.blogs).toBeDefined();
+
     expect(content == undefined).toBe(false);
-
     expect(content.likes == undefined).toBe(false);
-
     expect(content.likes).toBe(0);
+    expect(userBlogs.blogs).toContain(addedBlog._id);
+
+
     // Remove the added blog
     await Blog.remove(partFailBlog);
-
+    await User.findByIdAndDelete(testUser.id);
 });
+
 
 test('Test invalid url and invalid title blogs', async () => {
 
-    const blogs_ = blogsInDb();
-    const len1 = blogs_.length;
+    const testUser = await generateUser();
+
+    expect(testUser.id).toBeDefined();
+
+    const len1 = await blogsInDb().length;
 
     let failBlog = {
         title: 'NewInvalidUrlTitle',
         author: 'JohnyCäshbä',
         // url: 'https://lolpatterns.com/',
         likes: 10,
+        user: testUser.id
     };
 
     await api.post('/api/blogs')
@@ -106,7 +161,10 @@ test('Test invalid url and invalid title blogs', async () => {
 
     expect(len1).toEqual(len2);
 
+    await User.deleteOne({testUser});
+
 });
+
 
 test('Test singular delete', async () => {
     
@@ -174,18 +232,4 @@ test('Test invalid put', async () => {
         })
         .expect(404);
 
-});
-
-// Reset the database
-beforeAll(async () => {
-    await Blog.remove({});
-    const blogObjects = testBlogs.map(elem => new Blog(elem));
-    const promises = blogObjects.map(blog => blog.save());
-    await Promise.all(promises);
-
-});
-
-//Close the server connection
-afterAll(() => {
-    server.close();
 });

@@ -1,6 +1,6 @@
 
 const {Blog} = require('../models/blog');
-
+const {User} = require('../models/user');
 // const testBlogs = require('./testBlogs').blogs;
 
 
@@ -18,6 +18,24 @@ const blogsInDb = async () => {
     return blogs.map(elem => Blog.format(elem));
 };
 
+const generateUser = async () =>  {
+
+    const user = new User({
+        name: 'validUser',
+        username: 'validUser',
+        password: 'sikret',
+        adult: false,
+        blogs: []
+    });
+    await user.save();
+
+    let testUser = await User.findById(user._id);
+    testUser = User.format(testUser);
+
+    return testUser;
+
+};
+
 module.exports = {
-    nonExistingId, blogsInDb
-}
+    nonExistingId, blogsInDb, generateUser
+};

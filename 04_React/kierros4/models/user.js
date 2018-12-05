@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     name: String,
     username: String,
     passwordHash: String,
-    notes: [{type: mongoose.Schema.Types.ObjectId, ref: Blog}]
+    blogs: [{type: mongoose.Schema.Types.ObjectId, ref: Blog}]
 });
 
 userSchema.statics.format  = (user) => {
@@ -21,12 +21,12 @@ userSchema.statics.format  = (user) => {
         id: user.id,
         username: user.username,
         name: user.name,
-        notes: user.notes
-    }
-}
+        blogs: user.blogs
+    };
+};
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+module.exports = {User};
 
 

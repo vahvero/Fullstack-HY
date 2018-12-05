@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const userRouter = require('express').Router();
-const User = require('../models/user');
+const {User} = require('../models/user');
 
 userRouter.post('/', async (req, resp) => {
 
@@ -22,7 +22,8 @@ userRouter.post('/', async (req, resp) => {
             username: body.username,
             name: body.name,
             passwordHash: passwordHash,
-            adult: body.adult ? body.adult : true
+            adult: body.adult ? body.adult : true,
+            blogs: []
         });
 
         const savedUser = await user.save();
@@ -31,7 +32,7 @@ userRouter.post('/', async (req, resp) => {
             User.format(savedUser)
         );
     } catch(e) {
-        console.log(e);
+        // throw e;
         resp.status(500).json({error: 'Creation failure. ' + e});
     }
 });
@@ -44,10 +45,13 @@ userRouter.get('/', async (req, resp) => {
 const validateUser = async (user) => {
     try {
         if(user.password.length <= 3) {
+            // throw 'Password length too small';
             return false;
         }
         
         const temp = await User.find({username: user.username});
+
+        // throw temp;
         // console.log(temp);
         // console.log(temp.length === 0);
         if(temp.length === 0) {
@@ -55,20 +59,13 @@ const validateUser = async (user) => {
         }
         // console.log(temp);
         // console.log('Username in the database.')
+        // throw 'Temp  length non zero' + temp.length;
         return false;
     }
     catch(e) {
+        // throw e;
         return false;
     }
 };
-
-// const formatUser = (user) => {
-//     return {
-//         id: user.id,
-//         username: user.username,
-//         name: user.name,
-//         notes: user.notes
-//     }
-// }
 
 module.exports = {userRouter, validateUser};

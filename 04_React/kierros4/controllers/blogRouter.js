@@ -1,15 +1,6 @@
 const blogRouter = require('express').Router();
 const {Blog, validateBlog} = require('../models/blog');
-
-// const formatBlog = (blog) => {
-//     return {
-//         id: blog._id,
-//         title: blog.title,
-//         author: blog.author,
-//         url: blog.url,
-//         likes: blog.likes,
-//     };
-// };
+const {User} = require('../models/user');
 
 blogRouter.get('/', (request, response) => {
     Blog
@@ -20,41 +11,43 @@ blogRouter.get('/', (request, response) => {
 });
 
 blogRouter.post('/', async (request, response) => {
-    let blog = request.body;
-
-    // console.log(blog);
-
-    blog = validateBlog(blog);
-
-    // console.log(blog);
-
-    if(!blog) {
-        response.status(400).json({});
-        return;
-    }
-
-    const newBlog = new Blog(blog);
-
-    // newBlog
-    //     .save()
-    //     .then(result => {
-    //         response.status(201).json(result);
-    //     })
-    //     .catch(e => {
-    //         console.log(e);
-    //         response.status(304).json({});
-    //     });
     try {
+        const id = request.body.user;
+        if(id === undefined) {
+            throw 'User identity not defined';
+        }
+        let blog = request.body;
+
+        const user = await User.findById(id);
+
+        // console.log(blog);
+        // console.log(user);
+
+        blog = validateBlog(blog);
+
+        // console.log(blog);
+
+        if(!blog) {
+            throw 'Invalid blog values';
+        }
+
+        const newBlog = new Blog(blog);
+
+
         const result = await newBlog.save();
-        response.status(201).json(result);
+        user.blogs = user.blogs.concat(newBlog._id);
+        await user.save();
+
+        response.status(201).json(Blog.format(result));
 
     }
     catch(e) {
-        console.log(e);
-        response.status(304).json({});
+        // throw e;
+        response.status(400).json({error: e});
     }
     
 });
+
 
 blogRouter.delete('/:id', async (request, response) => {
 

@@ -1,38 +1,51 @@
 
 const supertest = require('supertest');
-const User = require('../models/user');
+const {User} = require('../models/user');
 const {validateUser} = require('../controllers/userRouter');
 const {app, server} = require('../index');
-
+// const {generateUser} = require('./testHelper');
 const api = supertest(app);
 
 const invalidUser = {
     name: 'InvalidUser',
     username: 'InvalidUser',
-    password: 'hh',
-    adult: false
+    password: '12',
+    adult: false,
+    blogs: []
 };
 
 const validUser = {
     name: 'validUser',
     username: 'validUser',
     password: 'sikret',
-    adult: false
+    adult: false,
+    blogs: []
 };
 
+
+
 test('test invalid user post', async () => {
-    await api.post('/api/users')
+
+    const response = await api.post('/api/users')
         .send(invalidUser)
         .expect(400);
-
     await User.deleteOne({username: invalidUser.username});
 });
 
 test('test valid user post', async () => {
-    await api.post('/api/users')
-        .send(validUser)
-        .expect(201);
+
+    const user = {
+        name: 'validUser123',
+        username: 'validUser123',
+        password: 'sikret',
+        adult: false,
+        blogs: []
+    };
     
+
+    const response = await api.post('/api/users')
+        .send(user)
+        .expect(201);
     // Remove the valid user
     await User.deleteOne({username: validUser.username});
 
@@ -40,16 +53,26 @@ test('test valid user post', async () => {
 });
 
 test('Test validate with invalid user', async () => {
-    
+
+    // const user = new User({
+    //     invalidUser
+    // });
+    // await user.save();
     const ret = await validateUser(invalidUser);
     expect(ret).toEqual(false);
-
+    await User.deleteOne(invalidUser);
 });
 
 test('Test validate with valid user', async () => {
-    
+    // const user = new User({
+    //     validUser
+    // });
+    // await user.save();
+    await User.deleteMany({username: validUser.username});
+
     const ret = await validateUser(validUser);
     expect(ret).toEqual(true);
+    await User.deleteOne(validUser);
 
 });
 
