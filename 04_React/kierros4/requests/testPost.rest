@@ -5,5 +5,6 @@ Content-Type: application/json
     "title": "How I stopped worrying abount the bomb",
     "author": "Tohtori Outolempi",
     "url": "GetRandomUrl()",
-    "likes": 35
+    "likes": 35,
+    "user": "5c0ab2da709540117c232f64"
 }
