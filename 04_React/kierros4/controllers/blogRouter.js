@@ -1,6 +1,17 @@
+const jwt = require('jsonwebtoken');
+
 const blogRouter = require('express').Router();
 const {Blog, validateBlog} = require('../models/blog');
 const {User} = require('../models/user');
+
+const getToken =(req) => {
+    const authorization = req.get('authorization');
+
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7);
+    }
+    return null;
+};
 
 blogRouter.get('/', async (request, response) => {
     // Blog
@@ -46,16 +57,19 @@ blogRouter.post('/', async (request, response) => {
         if(id === undefined) {
             throw 'User identity not defined';
         }
+
+        const token = getToken(request);
+        const decodedToken = jwt.verify(token, process.env.SECRET);
+
+        if(!token || !decodedToken.id) {
+            return response.status(401).json({error: 'token missing or invalid'});
+        }
+
         let blog = request.body;
 
-        const user = await User.findById(id);
-
-        // console.log(blog);
-        // console.log(user);
+        const user = await User.findById(decodedToken.id);
 
         blog = validateBlog(blog);
-
-        // console.log(blog);
 
         if(!blog) {
             throw 'Invalid blog values';

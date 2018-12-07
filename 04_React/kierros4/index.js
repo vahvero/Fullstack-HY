@@ -6,6 +6,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const blogRouter = require('./controllers/blogRouter');
 const {userRouter} = require('./controllers/userRouter');
+const {loginRouter} = require('./controllers/loginRouter');
 
 require('dotenv').config();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/blogs', blogRouter);
 app.use('/api/users', userRouter);
+app.use('/api/login', loginRouter);
 
 const mongoUrl = process.env.NODE_ENV !== 'production' ? 
     process.env.DEV_URL : process.env.PROD_URL;
