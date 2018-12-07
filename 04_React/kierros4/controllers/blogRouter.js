@@ -4,14 +4,15 @@ const blogRouter = require('express').Router();
 const {Blog, validateBlog} = require('../models/blog');
 const {User} = require('../models/user');
 
-const getToken =(req) => {
-    const authorization = req.get('authorization');
+// const getToken =(req) => {
+//     const authorization = req.get('authorization');
 
-    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-        return authorization.substring(7);
-    }
-    return null;
-};
+//     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+//         return authorization.substring(7);
+//     }
+//     return null;
+
+// };
 
 blogRouter.get('/', async (request, response) => {
     // Blog
@@ -58,7 +59,8 @@ blogRouter.post('/', async (request, response) => {
             throw 'User identity not defined';
         }
 
-        const token = getToken(request);
+        // const token = getToken(request);
+        const token = request.token;
         const decodedToken = jwt.verify(token, process.env.SECRET);
 
         if(!token || !decodedToken.id) {
@@ -96,6 +98,14 @@ blogRouter.post('/', async (request, response) => {
 blogRouter.delete('/:id', async (request, response) => {
 
     try {
+
+        const token = request.token;
+        const blog = await Blog.findById(request.params.id);
+
+        if(blog.user.toString() !== token.id.toString()) {
+            return response.status(401).json({});
+        } 
+
         await Blog.remove({
             _id: request.params.id,
         });

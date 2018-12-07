@@ -10,8 +10,18 @@ const {loginRouter} = require('./controllers/loginRouter');
 
 require('dotenv').config();
 
+const getToken = (req, resp, next) => {
+    const authorization = req.get('authorization');
+
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        req.token = authorization.substring(7);
+    }
+    next();
+};
+
 app.use(cors());
 app.use(bodyParser.json());
+app.use(getToken);
 app.use('/api/blogs', blogRouter);
 app.use('/api/users', userRouter);
 app.use('/api/login', loginRouter);
